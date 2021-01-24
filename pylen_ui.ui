@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>Briam Moran</author>
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>554</width>
+    <height>497</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pylen Filament Usage Generator</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="10" column="0" colspan="4">
+     <widget class="QPushButton" name="pushButton_Generate">
+      <property name="toolTip">
+       <string>Click to generate Filament Usage Report</string>
+      </property>
+      <property name="text">
+       <string>Generate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_ReportFilePath">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Report File:</string>
+      </property>
+      <property name="buddy">
+       <cstring>lineEdit_ReportPath</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_GCodePath">
+      <property name="toolTip">
+       <string>Path to Gcode File use File-&gt;Open </string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_GCodeFilePath">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>GCodeFile:</string>
+      </property>
+      <property name="buddy">
+       <cstring>lineEdit_GCodePath</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="lineEdit_ReportPath">
+      <property name="toolTip">
+       <string>Use FileOpen or Manually set</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="pushButton_OpenReport">
+      <property name="text">
+       <string>OpenReport</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
+     <widget class="QLabel" name="label_OutputWindow">
+      <property name="text">
+       <string>Output Window</string>
+      </property>
+      <property name="buddy">
+       <cstring>textBrowser_OutputWindow</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="0" colspan="3">
+     <widget class="QTextBrowser" name="textBrowser_OutputWindow">
+      <property name="toolTip">
+       <string>Filament Usage Report window</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_Progress">
+      <property name="text">
+       <string>Progress</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>554</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionHelp"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>pushButton_Generate</tabstop>
+  <tabstop>textBrowser_OutputWindow</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>pushButtonFileOpenPathClicked()</slot>
+  <slot>pushButtonGenerateClicked()</slot>
+ </slots>
+</ui>
