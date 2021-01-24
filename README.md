@@ -10,6 +10,10 @@ Pylen GUI:
 
  ![pylen_gui](https://github.com/bmoniey/pylen/blob/master/pylen_gui_screenshot.jpg?raw=true)
 
+Example Plot of Filament Usage by Layer:
+
+![Layer_Plot](https://github.com/bmoniey/pylen/blob/master/pylen_plot_example.png?raw=true)
+
 Multi Color Print Sample:
 
  ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/pylen_multi_color_print_magykdragon_logo.JPG?raw=true)
