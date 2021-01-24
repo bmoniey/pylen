@@ -18,7 +18,7 @@ Python Filament Length Generator
         <p>Send sample gcode for your printer to b.moniey@gmail.com to help add new flavors</p>
         </body></html>
         
- ![pylen_gui](https://github.com/[bmoniey]/[pylen]/pylen_gui_screenshot.jpg?raw=true)
+ ![pylen_gui](https://github.com/bmoniey/pylen/blob/master/pylen_gui_screenshot.jpg?raw=true)
  
 
 Release Notes:
