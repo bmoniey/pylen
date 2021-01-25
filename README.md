@@ -1,8 +1,9 @@
 # pylen
-Python Filament Length Generator
+Python Filament Length Generator:
+
 A GUI written in python for extracting filament usage by layer from your 3D printers gcode.
 The output of the GUI is a plot of the cumulative filament usage at the end of each layer.
-A report is generated as a CSV file for the user.
+A report is generated as a CSV file for the user. Use this along with your Cura slicer generate the gcode. Use the layer preview to identify where you want the layers to start one color and begin on another. Use the data in the report to calculate the length of filamant used on each layer. The plan is for future versions of this utility to automate this step. The filament can be welded together to form segments which start and end at just the right time to make beautiful multi-color prints on a signle nozzle printer.
 
 This utility is especially useful for making multi color 3D prints possible with a single extruder printer like the Ender 3.
 
