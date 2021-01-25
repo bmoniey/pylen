@@ -43,8 +43,9 @@ This utility is especially useful for making multi color 3D prints possible with
 - create a plugin for cura
 
 ## Running from source:
-### Firstime install requirments
+### Firstime install requirements
 `pip install -r requirements.txt`
+
 ### run pylen_main.py
 `python -m pylen_main.py`
 
