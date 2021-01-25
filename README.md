@@ -29,13 +29,21 @@ Latest Binaries:
         https://github.com/bmoniey/pylen/tree/master/dist
 
 Release Notes:
+
 Version 1.0.0
-Tested only in Windows 7
-Tested only using Cura slicer generated gcode
-Tested using Ender 3 profile
-Tested only so far with Marlin Flavor gcode
+
+*Tested only in Windows 7
+
+*Tested only using Cura slicer generated gcode
+
+*Tested using Ender 3 profile
+
+*Tested only so far with Marlin Flavor gcode
 
 TODO:
--would like to add feature adding concept of layer segments
--these segment would allow generator of filament segment cut legths which can be used on a multi-color print
--test this utility with various gcode flavors
+
+*would like to add feature adding concept of layer segments
+
+*these segment would allow generator of filament segment cut legths which can be used on a multi-color print
+
+*test this utility with various gcode flavors
