@@ -25,8 +25,8 @@ Multi Color Print Sample:
 
  ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/pylen_multi_color_print_magykdragon_logo.JPG?raw=true)
 
-Binaries:
-        build/bdist.win32       microsoft msi install
+Latest Binaries:
+        https://github.com/bmoniey/pylen/tree/master/dist
 
 Release Notes:
 Version 1.0.0
