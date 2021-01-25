@@ -24,7 +24,8 @@ This utility is especially useful for making multi color 3D prints possible with
  ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/pylen_multi_color_print_magykdragon_logo.JPG?raw=true)
 
 # Binaries:
-[Latest Binaries](https://github.com/bmoniey/pylen/tree/master/dist)
+- [Latest Binaries](https://github.com/bmoniey/pylen/tree/master/dist)
+- No installer, just unzip to a folder and run pylen.exe
 
 # Release Notes:
 
