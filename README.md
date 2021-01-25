@@ -30,7 +30,7 @@ This utility is especially useful for making multi color 3D prints possible with
 
 ## Version 1.0.0
 
-- Tested only in Windows 7
+- Tested only in Windows 7,Windows 10
 - Tested only using Cura slicer generated gcode
 - Tested using Ender 3 profile
 - Tested only so far with Marlin Flavor gcode
