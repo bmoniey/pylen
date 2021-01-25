@@ -4,7 +4,11 @@ A GUI written in python for extracting filament usage by layer from your 3D prin
 The output of the GUI is a plot of the cumulative filament usage at the end of each layer.
 A report is generated as a CSV file for the user.
 
-This utility is especially useful for making multi color 3D prints that have a single color per layer.
+This utility is especially useful for making multi color 3D prints possible with a single extruder printer like the Ender 3.
+
+See Filament Welder Tool which is a companion to this repository:
+https://grabcad.com/library/3dprint-filament-welder-1
+https://www.thingiverse.com/thing:4736586
     
 Pylen GUI:
 
