@@ -7,11 +7,9 @@ A report is generated as a CSV file for the user. Use this along with your Cura 
 
 This utility is especially useful for making multi color 3D prints possible with a single extruder printer like the Ender 3.
 
-See Filament Welder Tool which is a companion to this repository:
-
-[Filament Welder on GrabCAD](https://grabcad.com/library/3dprint-filament-welder-1)
-
-[Filament Welder on Thingiverse](https://www.thingiverse.com/thing:4736586)
+## Filament Welder which makes splicing filament easy:
+- [Filament Welder on GrabCAD](https://grabcad.com/library/3dprint-filament-welder-1)
+- [Filament Welder on Thingiverse](https://www.thingiverse.com/thing:4736586)
     
 ## Pylen GUI:
 
@@ -25,9 +23,8 @@ See Filament Welder Tool which is a companion to this repository:
 
  ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/pylen_multi_color_print_magykdragon_logo.JPG?raw=true)
 
-# Latest Binaries:
-
-        [Latest Binary](https://github.com/bmoniey/pylen/tree/master/dist)
+# Binaries:
+[Latest Binaries](https://github.com/bmoniey/pylen/tree/master/dist)
 
 # Release Notes:
 
@@ -36,10 +33,18 @@ See Filament Welder Tool which is a companion to this repository:
 - Tested only in Windows 7
 - Tested only using Cura slicer generated gcode
 - Tested using Ender 3 profile
-
-*Tested only so far with Marlin Flavor gcode
+- Tested only so far with Marlin Flavor gcode
 
 # TODO:
-- would like to add feature adding concept of layer segments
-- these segment would allow generator of filament segment cut legths which can be used on a multi-color print
+- add feature adding concept of layer segments
+- Segment feature would allow generation of filament cut sheet
 - test this utility with various gcode flavors
+- test out on some other operating systems (any volunteers)
+- create a plugin for cura
+
+## Running from source:
+### Firstime install requirments
+`pip install -r requirements.txt`
+### run pylen_main.py
+`python -m pylen_main.py`
+
