@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import traceback, sys
+from settings import Settings
 
 
 class WorkerSignals(QtCore.QObject):
@@ -84,14 +85,16 @@ class Pylen_UI(Ui_MainWindow):
         to generate pylen_ui.py execute from terminal:
         >pyuic5 -xo pylen_ui.py pylen_ui.ui
     """
-    def __init__(self):
+    def __init__(self,settings):
         super().__init__()
-        self.filename_report = None
-        self.filename_gcode  = None
+        self.settings = settings
+        self.filename_report = self.settings.last_report_file
+        self.filename_gcode  = self.settings.last_gcode_file
         self.pl = None
         self.threadpool = QtCore.QThreadPool()
         self.parse_completed = False
         self.parse_in_progress = False
+
 
     def pylen_setupUi(self, MainWindow):
         self.MainWindow = MainWindow
@@ -103,6 +106,8 @@ class Pylen_UI(Ui_MainWindow):
         self.actionAbout.triggered.connect(self.actionFileAboutTrigger)
         self.textBrowser_OutputWindow.setText('Use File->Open to select GCode and then Click Generate Button.')
         self.progressBar.setProperty("value", 0)
+        self.lineEdit_ReportPath.setText(self.filename_report)
+        self.lineEdit_GCodePath.setText(self.filename_gcode)
 
     def pushButtonOpenReporteClicked(self):
         if self.filename_report is not None and os.path.exists(self.filename_report) is True:
@@ -123,19 +128,21 @@ class Pylen_UI(Ui_MainWindow):
     def actionFileOpenTrigger(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "QFileDialog.getOpenFileName()", "",
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "QFileDialog.getOpenFileName()",
+                                                            os.path.dirname(self.settings.last_gcode_file),
                                                   "GCode Files (*.gcode);;All Files (*)", options=options)
         if fileName:
             basename = os.path.basename(fileName)
             dirname  = os.path.dirname(fileName)
             basename_ = basename.split('.')
             self.filename_gcode = os.path.join(dirname, basename)
+            self.settings.last_gcode_file = self.filename_gcode
             self.filename_report = os.path.join(dirname, f"{basename_[0]}.csv")
+            self.settings.last_report_file = self.filename_report
             self.lineEdit_GCodePath.setText(self.filename_gcode)
             self.lineEdit_ReportPath.setText(self.filename_report)
             self.parse_completed = False
             self.progressBar.setProperty("value", 0)
-
 
     def actionFileHelpTrigger(self):
         msgBox = QtWidgets.QMessageBox()
@@ -282,11 +289,11 @@ def main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Pylen_UI()
-    ui.pylen_setupUi(MainWindow)
-    MainWindow.show()
-
-    sys.exit(app.exec_())
+    with Settings() as settings:
+        ui = Pylen_UI(settings)
+        ui.pylen_setupUi(MainWindow)
+        MainWindow.show()
+        sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()
