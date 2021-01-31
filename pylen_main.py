@@ -1,80 +1,219 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets
+from PyQt5.Qt import Qt
 from pylen_ui import Ui_MainWindow
+from pylen_clen_ui import Ui_CutLengthWorkSheet
 from pylen import Pylen
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import traceback, sys
+from pylen_worker import *
 from settings import Settings
 
 
-class WorkerSignals(QtCore.QObject):
-    '''
-    Defines the signals available from a running worker thread.
+class SegmentFrame(object):
+    def __init__(self,parent,SegmentName="SegmentName",SegmentLayer=0,SegmentLayerMax=9999,SegmentUpdateCallBack=None):
+        self.segment_name    = SegmentName
+        self.segment_layer   = SegmentLayer
+        self.segment_layer_max = SegmentLayerMax
+        self.segment_color = QtGui.QColor("#f0f0f0")
+        self.frame = QtWidgets.QFrame(parent)
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label = QtWidgets.QLabel(self.frame)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.spinBox = QtWidgets.QSpinBox(self.frame)
+        self.spinBox.setMaximum(self.segment_layer_max)
+        self.spinBox.setValue(self.segment_layer)
+        self.spinBox.setObjectName("spinBox")
+        self.spinBox.setToolTip("Set the last layer for this segment")
+        self.horizontalLayout.addWidget(self.spinBox)
+        self.pushButtonSegment = QtWidgets.QPushButton(self.frame)
+        self.pushButtonSegment.setObjectName("pushButton")
+        self.horizontalLayout.addWidget(self.pushButtonSegment)
+        self.label.setText(self.segment_name)
+        self.pushButtonSegment.setText("SetColor")
+        self.pushButtonSegment.setToolTip("Set the color for this segment")
 
-    Supported signals are:
+        self.pushButtonSegment.setStyleSheet(f"background-color:{self.segment_color.name()}")
+        self.pushButtonSegment.clicked.connect(self.setColor)
+        self.spinBox.valueChanged.connect(self.spinBoxOnChange)
+        self.update_callback = SegmentUpdateCallBack
 
-    finished
-        No data
+    def setColor(self):
+        self.segment_color  = QtWidgets.QColorDialog.getColor()
+        self.pushButtonSegment.setStyleSheet(f"background-color:{self.segment_color.name()}")
+        print(f"Segment{self.segment_name} color set to {self.segment_color.name()}")
+        self.update()
 
-    error
-        tuple (exctype, value, traceback.format_exc() )
+    def spinBoxOnChange(self):
+        self.segment_layer = self.spinBox.value()
+        print(f"Segment{self.segment_name} spinbox changed to {self.spinBox.value()}")
+        self.update()
 
-    result
-        object data returned from processing, anything
+    def update(self):
+        if self.update_callback is not None:
+           self.update_callback(self)
 
-    progress
-        int indicating % progress
+    def setLayer(self,layer):
+        self.segment_layer = layer
+        self.spinBox.setValue(layer)
 
-    '''
-    finished = QtCore.pyqtSignal()
-    error = QtCore.pyqtSignal(tuple)
-    result = QtCore.pyqtSignal(object)
-    progress = QtCore.pyqtSignal(int)
+    def __str__(self):
+        return f'name:{self.segment_name} layer:{self.segment_layer} color:{self.segment_color.name()}'
 
-class Worker(QtCore.QRunnable):
-    '''
-    Worker thread
 
-    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+class Pylen_Clen_UI(Ui_CutLengthWorkSheet):
+        def __init__(self, pl):
+            super().__init__()
+            self.form = QtWidgets.QWidget()
+            self.setupUi(self.form)
+            self.pl = pl
+            self.layer_count   = int(self.pl.gc.d["LAYER_COUNT"])
+            self.layer_list = []
+            self.color_list = []
+            self.length_list = []
+            self.pos_list    = []
+            self.start_up_filament = self.pl.gc.start_eabs
+            self.layer_data  = self.pl.gc.edata
+            self.segment_count = 1
+            self.scene = QtWidgets.QGraphicsScene()
+            self.greenBrush = QtGui.QBrush(Qt.green)
+            self.grayBrush = QtGui.QBrush(Qt.gray)
+            self.pen = QtGui.QPen(Qt.red)
+            self.pushButton_AddSegment.setToolTip("Adds a new segment")
+            self.graphicsView.setScene(self.scene)
+            self.graphicsView.setToolTip("Segments shown here go from left to right. The leftmost segment is the end which goes into the printer first. Startup filament is Not included in first segment.")
+            self.pushButton_AddSegment.clicked.connect(self.add_segment)
+            self.sf_list = []
+            self.sceneLengthTextItem_list = []
+            self.form.show()
 
-    :param callback: The function callback to run on this worker thread. Supplied args and
-                     kwargs will be passed through to the runner.
-    :type callback: function
-    :param args: Arguments to pass to the callback function
-    :param kwargs: Keywords to pass to the callback function
+        def add_segment(self):
+            sf = SegmentFrame(self.scrollAreaWidgetContents, SegmentName=f"Segment {self.segment_count} up to Layer:",
+                              SegmentLayer=self.layer_count, SegmentLayerMax=self.layer_count,
+                              SegmentUpdateCallBack=self.segment_updated)
 
-    '''
+            if self.segment_count == 1:
+                pass
+            elif self.segment_count == 2:
+                l = int(self.sf_list[-1].segment_layer / 2)
+                self.sf_list[-1].setLayer(self.layer_count-l)
+            else:
+                l = int((self.layer_count - self.sf_list[-2].segment_layer) / 2)
+                self.sf_list[-1].setLayer(self.layer_count-l)
 
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
+            self.sf_list.append(sf)
+            self.verticalLayout.addWidget(sf.frame)
+            self.segment_count += 1
+            self.update_lists()
+            self.update_scene()
 
-        # Store constructor arguments (re-used for processing)
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
+        def update_lists(self):
+            self.layer_list  = []
+            self.color_list  = []
+            self.length_list = []
+            self.pos_list    = []
 
-        # Add the callback to our kwargs
-        self.kwargs['progress_callback'] = self.signals.progress
+            for s in self.sf_list:
+                self.layer_list.append(s.segment_layer)
+                self.color_list.append(s.segment_color.name())
 
-    @QtCore.pyqtSlot()
-    def run(self):
-        '''
-        Initialise the runner function with passed args, kwargs.
-        '''
+            for nn in range(len(self.layer_list)):
 
-        # Retrieve args/kwargs here; and fire processing using them
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
-        else:
-            self.signals.result.emit(result)  # Return the result of the processing
-        finally:
-            self.signals.finished.emit()  # Done
+                if nn == 0:
+                    ll  = self.layer_list[nn]
+                    pos = self.layer_data[ll-1]
+                    self.length_list.append(pos)
+                    self.pos_list.append(pos)
+                else:
+                    ll = self.layer_list[nn]
+                    mm = self.layer_list[nn-1]
+                    pos = self.layer_data[ll-1]
+                    self.length_list.append(self.layer_data[ll-1] - self.layer_data[mm-1])
+                    self.pos_list.append(pos)
+
+        def update_scene(self):
+            x0 = self.graphicsView.width() * 0.1
+            y0 = self.graphicsView.height()/2
+            row_text_height = 20
+            total_length = self.layer_data[-1]
+            gv_pixels_width = self.graphicsView.width() * 0.8
+            pix_factor      = gv_pixels_width / total_length
+            self.scene.clear()
+            self.sceneLengthTextItem_list = []
+            textItem = self.scene.addText("Units[mm]")
+            textItem.setPos(x0, y0 + row_text_height * 1 )
+            self.sceneLengthTextItem_list.append(textItem)
+            textItem = self.scene.addText(f"Layer Count[-]:{self.layer_count}")
+            textItem.setPos(x0, y0 + row_text_height * 2)
+            self.sceneLengthTextItem_list.append(textItem)
+            textItem = self.scene.addText(f"Total filament[mm]:{self.layer_data[-1]:.1f}")
+            textItem.setPos(x0, y0 + row_text_height * 3)
+            self.sceneLengthTextItem_list.append(textItem)
+            startup_str = f"Startup filament[mm]:{self.start_up_filament:.1f} - Not included in first segment"
+            textItem = self.scene.addText(startup_str)
+            textItem.setPos(x0, y0 + row_text_height * 4)
+            self.sceneLengthTextItem_list.append(textItem)
+
+            #draw the startup line
+            color = QtGui.QColor(self.color_list[0])
+            pen = QtGui.QPen(color)
+            pen.setWidth(5)
+            y = y0 + row_text_height * 4.5
+            x1 = x0 + textItem.boundingRect().width() * 1.1
+            x2 = x1 + self.start_up_filament
+
+            self.scene.addLine(x1, y, x2, y, pen)
+
+            #draw the segment lines
+            for nn in range(len(self.length_list)):
+                color = QtGui.QColor(self.color_list[nn])
+                pen   = QtGui.QPen(color)
+                pen.setWidth(5)
+                if nn == 0:
+                    x1 = x0
+                    y1 = y0
+                    ll = self.layer_list[nn]
+                    x2 = self.layer_data[ll-1] * pix_factor + x0
+                    y2 = y0
+                    self.scene.addLine(x1, y1, x2, y2, pen)
+                    textItem = self.scene.addText(f"{self.length_list[nn]:.1f}")
+                    textItem.setPos((x2+x1) / 2, y2 + 10)
+                    self.sceneLengthTextItem_list.append(textItem)
+                else:
+                    ll = self.layer_list[nn]
+                    mm = self.layer_list[nn-1]
+                    x2 = self.layer_data[ll-1]*pix_factor + x0
+                    y2 = y0
+                    x1 = self.layer_data[mm-1]*pix_factor + x0
+                    y1 = y0
+                    self.scene.addLine(x1, y1, x2, y2, pen)
+                    textItem = self.scene.addText(f"{self.length_list[nn]:.1f}")
+                    textItem.setPos((x2+x1) / 2, y2 + 10)
+                    self.sceneLengthTextItem_list.append(textItem)
+
+
+
+        def get_segment_color_as_list(self):
+            sc = []
+            for s in self.sf_list:
+                sc.append(s.segment_color.name())
+            return sc
+
+        def segment_updated(self, sf):
+            if isinstance(sf, SegmentFrame):
+                self.update_lists()
+                self.update_scene()
+                print(f'segment updated called for for {sf}')
+                print(f'total number of segments:{len(self.sf_list)}')
+                print(f'layer list:{self.layer_list}')
+                print(f'color list:{self.color_list}')
+                print(f'length list:{self.length_list}')
+                print(f'pos list:{self.pos_list}')
 
 class Pylen_UI(Ui_MainWindow):
     """
@@ -85,7 +224,7 @@ class Pylen_UI(Ui_MainWindow):
         to generate pylen_ui.py execute from terminal:
         >pyuic5 -xo pylen_ui.py pylen_ui.ui
     """
-    def __init__(self,settings):
+    def __init__(self, settings):
         super().__init__()
         self.settings = settings
         self.filename_report = self.settings.last_report_file
@@ -231,6 +370,7 @@ class Pylen_UI(Ui_MainWindow):
     def thread_complete(self):
         self.parse_completed = True
 
+
     def pushButtonGenerateClicked(self):
         if self.filename_gcode is not None and self.parse_in_progress is False:
             self.textBrowser_OutputWindow.setText('File Open, Starting a new session. Waiting for Generate to Start:')
@@ -272,6 +412,9 @@ class Pylen_UI(Ui_MainWindow):
             self.makePlot()
             self.textBrowser_OutputWindow.append(f'Done')
             self.parse_in_progress = False
+            self.clen_ui = Pylen_Clen_UI(self.pl)
+
+
         else:
             msgBox = QtWidgets.QMessageBox()
             msgBoxTxt = """
