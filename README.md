@@ -8,7 +8,7 @@ The output can be used for making multi-color 3D prints with a single extruder b
 - Filament Layer Report as CSV
 - Cut Length Work Sheet which allows the user to define segments and calculates the filament cut lengths
 
-## Filament Welder which makes splicing filament easy:
+## Filament Welder:
 - [Filament Welder on GrabCAD](https://grabcad.com/library/3dprint-filament-welder-1)
 - [Filament Welder on Thingiverse](https://www.thingiverse.com/thing:4736586)
     
