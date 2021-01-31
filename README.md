@@ -15,6 +15,10 @@ This utility is especially useful for making multi color 3D prints possible with
 
  ![pylen_gui](https://github.com/bmoniey/pylen/blob/master/pylen_gui_screenshot.jpg?raw=true)
 
+## Example Cut Length Worksheet
+
+![Cut Length Worksheet](https://github.com/bmoniey/pylen/blob/master/pylen_clen_ui.png?raw=true)
+
 ## Example Plot of Filament Usage by Layer:
 
 ![Layer_Plot](https://github.com/bmoniey/pylen/blob/master/pylen_plot_example.png?raw=true)
@@ -29,7 +33,12 @@ This utility is especially useful for making multi color 3D prints possible with
 
 # Release Notes:
 
-## Version 1.0.0
+## Version 1.1.0 January 30, 2021
+
+- Added cut length work sheet with segment support
+- Added support for basic settings
+
+## Version 1.0.0 January 23, 2021
 
 - Tested only in Windows 7,Windows 10
 - Tested only using Cura slicer generated gcode
@@ -37,11 +46,9 @@ This utility is especially useful for making multi color 3D prints possible with
 - Tested only so far with Marlin Flavor gcode
 
 # TODO:
-- add feature adding concept of layer segments
-- Segment feature would allow generation of filament cut sheet
-- test this utility with various gcode flavors
-- test out on some other operating systems (any volunteers)
-- create a plugin for cura
+- Test this utility with various gcode flavors
+- Test out on some other operating systems (any volunteers)
+- Create a plugin for cura
 
 ## Running from source:
 ### Firstime install requirements
