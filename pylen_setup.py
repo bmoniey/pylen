@@ -12,7 +12,7 @@ executables = [
 ]
 
 setup(name='pylen',
-      version = '1.0.0',
+      version = '1.1.0',
       description = 'Python Filament Length Generator',
       options = {'build_exe': build_options},
       executables = executables)

@@ -314,10 +314,11 @@ class Pylen_UI(Ui_MainWindow):
         msgBoxTxt = """
         <html><head/>
         <body>
-        <p>Pylen Filament Usage Generator:</p>
-        <p>Version:1.0.0</p>
+        <p>Pylen Filament Usage Generator</p>
+        <p>Version: 1.1.0</p>
+        <p>Release Date: January 30, 2021</p>
         <p>Written by: Brian Moran</p>
-        <p>Email:b.moniey@gmail.com</p>
+        <p>Email: b.moniey@gmail.com</p>
         </body>
         </html>
         """
