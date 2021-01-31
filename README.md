@@ -46,6 +46,7 @@ This utility is especially useful for making multi color 3D prints possible with
 - Tested only so far with Marlin Flavor gcode
 
 # TODO:
+- Add support for unit other than mm on graph and work sheet
 - Test this utility with various gcode flavors
 - Test out on some other operating systems (any volunteers)
 - Create a plugin for cura
