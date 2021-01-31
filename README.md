@@ -1,10 +1,9 @@
-# pylen
-# Python Filament Length Generator:
+# PYLEN - Python Filament Length Generator:
 
 A GUI written in python for extracting filament usage by layer from your 3D printer gcode.
 
 ## Outputs
-- Plot of filament lengt at the end of each layer
+- Plot of filament length at the end of each layer
 - Filament Layer Report as CSV
 - Cut Length Work Sheet which allows the user to define segments and calculates the filament cut lengths
 
