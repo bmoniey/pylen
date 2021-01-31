@@ -1,6 +1,7 @@
 # PYLEN - Python Filament Length Generator:
 
-A GUI written in python for extracting filament usage by layer from your 3D printer gcode.
+A utility for extracting filament usage by layer from your 3D printer gcode.
+The output can be used for making multi-color 3D prints with a single extruder by welding filament segments together. A simple filament welder is linked below.
 
 ## Outputs
 - Plot of filament length at the end of each layer
@@ -23,10 +24,10 @@ A GUI written in python for extracting filament usage by layer from your 3D prin
 
 ![Layer_Plot](https://github.com/bmoniey/pylen/blob/master/pylen_plot_example.png?raw=true)
 
-## Multi Color Print Sample:
+## Multi Color Print Samples:
 
- ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/pylen_multi_color_print_magykdragon_logo.JPG?raw=true)
-
+ ![multi_color_print](https://github.com/bmoniey/pylen/blob/master/gallery/avl_logo_blue_silver_white.png)
+ 
 # Binaries:
 - [Latest Binaries](https://github.com/bmoniey/pylen/tree/master/dist)
 - No installer, just unzip to a folder and run pylen.exe
