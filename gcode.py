@@ -117,6 +117,8 @@ class Gcode:
             patterns.append(re.compile(";(MAXZ):\s*(\d*\.*\d*)"))
             #;LAYER_COUNT: 50
             patterns.append(re.compile(";(LAYER_COUNT):\s*(\d*\.*\d*)"))
+            #;End of Gcode
+            patterns.append(re.compile(";(End of Gcode)"))
             #;LAYER:0
             patterns.append(re.compile(";(LAYER):\s*(\d*)"))
             #G(number)
@@ -208,6 +210,14 @@ class Gcode:
                     elif g == "Start G-code":
                         print('Start G-code')
                         self.start_gcode = True
+                    elif g == "End of Gcode":
+                        print(f'End G-code Layer Count:{self.d["LAYER"]}')
+                        if int(self.d["LAYER"]) + 1 != int(self.d["LAYER_COUNT"]):
+                            print(f"\tLayers found {int(self.d['LAYER']) + 1} not equal to Header Layer Count of {self.d['LAYER_COUNT']}")
+                            self.d['LAYER_COUNT'] = str(int(self.d['LAYER']) + 1)
+                            print(f"reseting LAYER_COUNT to {self.d['LAYER_COUNT']}")
+                            self.edata = self.edata[:int(self.d['LAYER_COUNT'])]
+                            print(f'edata size changed to:{self.edata.shape}')
                     else:
                         self.d[m.group(1)]= m.group(2)
                         print(f'{m.group(1)}={m.group(2)}')
