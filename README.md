@@ -34,6 +34,11 @@ The output can be used for making multi-color 3D prints with a single extruder b
 
 # Release Notes:
 
+## Version 1.1.1 May 22, 2021
+
+-Issue1 Header Layer count not equal to layers found in gcode. Resolved in this version by truncating the data based
+the End of Gcode tag. The layer count is reset and the length data is trunctated to the new layer count.
+
 ## Version 1.1.0 January 30, 2021
 
 - Added cut length work sheet with segment support
