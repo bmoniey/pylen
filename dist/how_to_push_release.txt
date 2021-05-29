@@ -1,0 +1,12 @@
+May 22, 2021
+How to add a new release.
+I had to use the Large File System due to the size of releaser
+
+Procedure:
+0.Make sure a copy of the zipped distro is in the \dist folder
+1.Open a git bash to the folder ~\pylen_git\dist
+2.>git add <filename><enter>
+3.>git commit -m "comment about what is being added"
+4.>git push origin master
+
+It might take a minute or two to push the new release up to the git.
