@@ -1,0 +1,11 @@
+This applies to updateing ui's from QT designer.
+
+1.Open QT Designer utility which comes with PyQt5
+1.1 The QT Designer utility can be found under venv\lib\site-packages\qt5_applications\Qt\bin\designer.exe
+1.2 Create your UI panel and generate a <panel_name>.ui
+2. Convert the .ui file to python
+2.1 open a terminal window
+2.2 run pyui5 utility
+2.2.1 >pyuic5 -xo panel_name.py panel_name.ui
+2.2.1.1 -x option will create additional test code which is recommended for testing the panel
+2.2.1.2 -o sets the output file name
