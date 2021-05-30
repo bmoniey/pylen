@@ -104,6 +104,23 @@
       </property>
      </widget>
     </item>
+    <item row="11" column="2">
+     <widget class="QComboBox" name="comboBoxUnits">
+      <property name="toolTip">
+       <string>Set Units, mm,meters,inches</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="2">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Units</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">

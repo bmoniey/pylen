@@ -34,6 +34,10 @@ The output can be used for making multi-color 3D prints with a single extruder b
 
 # Release Notes:
 
+## Version 1.2.0 May 29,2021
+- Added support for units. Milli-Meter,Meter,Inch
+- moved all file paths to settings object
+
 ## Version 1.1.1 May 22, 2021
 
 - Issue1 Header Layer count not equal to layers found in gcode.

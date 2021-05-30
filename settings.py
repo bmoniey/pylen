@@ -1,5 +1,6 @@
 import json
 import os
+from pylen_unit import PylenUnit
 
 
 class Settings:
@@ -10,8 +11,9 @@ class Settings:
             self.__dict__ = json.load(open(self._config_location))
         else:
             self.__dict__ = {
-                'last_gcode_file': '',
-                'last_report_file':''
+                'gcode_file': '',
+                'report_file':'',
+                'units_index':PylenUnit.IDX_MM
             }
 
     def __enter__(self):

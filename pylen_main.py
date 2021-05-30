@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.Qt import Qt
 from pylen_ui import Ui_MainWindow
 from pylen_clen_ui import Ui_CutLengthWorkSheet
@@ -8,6 +8,7 @@ import numpy as np
 import os
 from pylen_worker import *
 from settings import Settings
+from pylen_unit import PylenUnit
 
 
 class SegmentFrame(object):
@@ -67,8 +68,9 @@ class SegmentFrame(object):
 
 
 class Pylen_Clen_UI(Ui_CutLengthWorkSheet):
-        def __init__(self, pl):
+        def __init__(self, pl,settings):
             super().__init__()
+            self.settings = settings
             self.form = QtWidgets.QWidget()
             self.setupUi(self.form)
             self.pl = pl
@@ -91,6 +93,16 @@ class Pylen_Clen_UI(Ui_CutLengthWorkSheet):
             self.sf_list = []
             self.sceneLengthTextItem_list = []
             self.form.show()
+            for val in PylenUnit.SHORT_STRING:
+                self.comboBoxUnits.addItem(PylenUnit.SHORT_STRING[val])
+            self.comboBoxUnits.setCurrentIndex(self.settings.units_index)
+            self.comboBoxUnits.currentIndexChanged.connect(self.updateUnits)
+
+        def updateUnits(self):
+            self.settings.units_index = self.comboBoxUnits.currentIndex()
+            print(f'Pylen_Clen_UI updated Units to: {self.settings.units_index}')
+            self.update_scene()
+
 
         def add_segment(self):
             sf = SegmentFrame(self.scrollAreaWidgetContents, SegmentName=f"Segment {self.segment_count} up to Layer:",
@@ -137,64 +149,71 @@ class Pylen_Clen_UI(Ui_CutLengthWorkSheet):
                     self.pos_list.append(pos)
 
         def update_scene(self):
-            x0 = self.graphicsView.width() * 0.1
-            y0 = self.graphicsView.height()/2
-            row_text_height = 20
-            total_length = self.layer_data[-1]
-            gv_pixels_width = self.graphicsView.width() * 0.8
-            pix_factor      = gv_pixels_width / total_length
-            self.scene.clear()
-            self.sceneLengthTextItem_list = []
-            textItem = self.scene.addText("Units[mm]")
-            textItem.setPos(x0, y0 + row_text_height * 1 )
-            self.sceneLengthTextItem_list.append(textItem)
-            textItem = self.scene.addText(f"Layer Count[-]:{self.layer_count}")
-            textItem.setPos(x0, y0 + row_text_height * 2)
-            self.sceneLengthTextItem_list.append(textItem)
-            textItem = self.scene.addText(f"Total filament[mm]:{self.layer_data[-1]:.1f}")
-            textItem.setPos(x0, y0 + row_text_height * 3)
-            self.sceneLengthTextItem_list.append(textItem)
-            startup_str = f"Startup filament[mm]:{self.start_up_filament:.1f} - Not included in first segment"
-            textItem = self.scene.addText(startup_str)
-            textItem.setPos(x0, y0 + row_text_height * 4)
-            self.sceneLengthTextItem_list.append(textItem)
+            try:
+                us = PylenUnit.SHORT_STRING[self.settings.units_index]
+                cv = PylenUnit.CONVERT_TO_MM[self.settings.units_index]
+                fmt = PylenUnit.FORMAT[self.settings.units_index]
 
-            #draw the startup line
-            color = QtGui.QColor(self.color_list[0])
-            pen = QtGui.QPen(color)
-            pen.setWidth(5)
-            y = y0 + row_text_height * 4.5
-            x1 = x0 + textItem.boundingRect().width() * 1.1
-            x2 = x1 + self.start_up_filament
+                x0 = self.graphicsView.width() * 0.1
+                y0 = self.graphicsView.height()/2
+                row_text_height = 20
+                total_length = self.layer_data[-1]
+                gv_pixels_width = self.graphicsView.width() * 0.8
+                pix_factor      = gv_pixels_width / total_length
+                self.scene.clear()
+                self.sceneLengthTextItem_list = []
+                textItem = self.scene.addText(f"Units[{us}]")
+                textItem.setPos(x0, y0 + row_text_height * 1 )
+                self.sceneLengthTextItem_list.append(textItem)
+                textItem = self.scene.addText(f"Layer Count[-]:{self.layer_count}")
+                textItem.setPos(x0, y0 + row_text_height * 2)
+                self.sceneLengthTextItem_list.append(textItem)
+                textItem = self.scene.addText(f"Total filament[{us}]:{self.layer_data[-1] / cv:{fmt}}")
+                textItem.setPos(x0, y0 + row_text_height * 3)
+                self.sceneLengthTextItem_list.append(textItem)
+                startup_str = f"Startup filament[{us}]:{self.start_up_filament/cv:{fmt}} - Not included in first segment"
+                textItem = self.scene.addText(startup_str)
+                textItem.setPos(x0, y0 + row_text_height * 4)
+                self.sceneLengthTextItem_list.append(textItem)
 
-            self.scene.addLine(x1, y, x2, y, pen)
-
-            #draw the segment lines
-            for nn in range(len(self.length_list)):
-                color = QtGui.QColor(self.color_list[nn])
-                pen   = QtGui.QPen(color)
+                #draw the startup line
+                color = QtGui.QColor(self.color_list[0])
+                pen = QtGui.QPen(color)
                 pen.setWidth(5)
-                if nn == 0:
-                    x1 = x0
-                    y1 = y0
-                    ll = self.layer_list[nn]
-                    x2 = self.layer_data[ll-1] * pix_factor + x0
-                    y2 = y0
-                    self.scene.addLine(x1, y1, x2, y2, pen)
-                    textItem = self.scene.addText(f"{self.length_list[nn]:.1f}")
-                    textItem.setPos((x2+x1) / 2, y2 + 10)
-                    self.sceneLengthTextItem_list.append(textItem)
-                else:
-                    ll = self.layer_list[nn]
-                    mm = self.layer_list[nn-1]
-                    x2 = self.layer_data[ll-1]*pix_factor + x0
-                    y2 = y0
-                    x1 = self.layer_data[mm-1]*pix_factor + x0
-                    y1 = y0
-                    self.scene.addLine(x1, y1, x2, y2, pen)
-                    textItem = self.scene.addText(f"{self.length_list[nn]:.1f}")
-                    textItem.setPos((x2+x1) / 2, y2 + 10)
-                    self.sceneLengthTextItem_list.append(textItem)
+                y = y0 + row_text_height * 4.5
+                x1 = x0 + textItem.boundingRect().width() * 1.1
+                x2 = x1 + self.start_up_filament
+
+                self.scene.addLine(x1, y, x2, y, pen)
+
+                #draw the segment lines
+                for nn in range(len(self.length_list)):
+                    color = QtGui.QColor(self.color_list[nn])
+                    pen   = QtGui.QPen(color)
+                    pen.setWidth(5)
+                    if nn == 0:
+                        x1 = x0
+                        y1 = y0
+                        ll = self.layer_list[nn]
+                        x2 = self.layer_data[ll-1] * pix_factor + x0
+                        y2 = y0
+                        self.scene.addLine(x1, y1, x2, y2, pen)
+                        textItem = self.scene.addText(f"{self.length_list[nn]/cv:{fmt}}")
+                        textItem.setPos((x2+x1) / 2, y2 + 10)
+                        self.sceneLengthTextItem_list.append(textItem)
+                    else:
+                        ll = self.layer_list[nn]
+                        mm = self.layer_list[nn-1]
+                        x2 = self.layer_data[ll-1]*pix_factor + x0
+                        y2 = y0
+                        x1 = self.layer_data[mm-1]*pix_factor + x0
+                        y1 = y0
+                        self.scene.addLine(x1, y1, x2, y2, pen)
+                        textItem = self.scene.addText(f"{self.length_list[nn]/cv:{fmt}}")
+                        textItem.setPos((x2+x1) / 2, y2 + 10)
+                        self.sceneLengthTextItem_list.append(textItem)
+            except:
+                pass
 
 
 
@@ -227,17 +246,15 @@ class Pylen_UI(Ui_MainWindow):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
-        self.filename_report = self.settings.last_report_file
-        self.filename_gcode  = self.settings.last_gcode_file
         self.pl = None
         self.threadpool = QtCore.QThreadPool()
         self.parse_completed = False
         self.parse_in_progress = False
 
 
-    def pylen_setupUi(self, MainWindow):
+    def setupUi(self,MainWindow):
+        super().setupUi(MainWindow)
         self.MainWindow = MainWindow
-        self.setupUi(MainWindow)
         self.pushButton_Generate.clicked.connect(self.pushButtonGenerateClicked)
         self.pushButton_OpenReport.clicked.connect(self.pushButtonOpenReporteClicked)
         self.actionOpen.triggered.connect(self.actionFileOpenTrigger)
@@ -245,12 +262,21 @@ class Pylen_UI(Ui_MainWindow):
         self.actionAbout.triggered.connect(self.actionFileAboutTrigger)
         self.textBrowser_OutputWindow.setText('Use File->Open to select GCode and then Click Generate Button.')
         self.progressBar.setProperty("value", 0)
-        self.lineEdit_ReportPath.setText(self.filename_report)
-        self.lineEdit_GCodePath.setText(self.filename_gcode)
+        self.lineEdit_ReportPath.setText(self.settings.report_file)
+        self.lineEdit_GCodePath.setText(self.settings.gcode_file)
+        for val in PylenUnit.SHORT_STRING:
+            self.comboBoxUnits.addItem(PylenUnit.SHORT_STRING[val])
+        self.comboBoxUnits.setCurrentIndex(self.settings.units_index)
+        self.comboBoxUnits.currentIndexChanged.connect(self.updateUnits)
+
+
+    def updateUnits(self):
+        self.settings.units_index = self.comboBoxUnits.currentIndex()
+        print(f"PylenUI UnitsChanged: index={self.settings.units_index}")
 
     def pushButtonOpenReporteClicked(self):
-        if self.filename_report is not None and os.path.exists(self.filename_report) is True:
-            os.system(self.filename_report)
+        if self.settings.report_file is not None and os.path.exists(self.settings.report_file) is True:
+            os.system(self.settings.report_file)
         else:
             msgBox = QtWidgets.QMessageBox()
             msgBoxTxt = """
@@ -268,18 +294,18 @@ class Pylen_UI(Ui_MainWindow):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "QFileDialog.getOpenFileName()",
-                                                            os.path.dirname(self.settings.last_gcode_file),
+                                                            os.path.dirname(self.settings.gcode_file),
                                                   "GCode Files (*.gcode);;All Files (*)", options=options)
         if fileName:
             basename = os.path.basename(fileName)
             dirname  = os.path.dirname(fileName)
             basename_ = basename.split('.')
-            self.filename_gcode = os.path.join(dirname, basename)
-            self.settings.last_gcode_file = self.filename_gcode
-            self.filename_report = os.path.join(dirname, f"{basename_[0]}.csv")
-            self.settings.last_report_file = self.filename_report
-            self.lineEdit_GCodePath.setText(self.filename_gcode)
-            self.lineEdit_ReportPath.setText(self.filename_report)
+            self.settings.gcode_file = os.path.join(dirname, basename)
+
+            self.settings.report_file = os.path.join(dirname, f"{basename_[0]}.csv")
+
+            self.lineEdit_GCodePath.setText(self.settings.gcode_file)
+            self.lineEdit_ReportPath.setText(self.settings.report_file)
             self.parse_completed = False
             self.progressBar.setProperty("value", 0)
 
@@ -315,8 +341,8 @@ class Pylen_UI(Ui_MainWindow):
         <html><head/>
         <body>
         <p>Pylen Filament Usage Generator</p>
-        <p>Version: 1.1.1</p>
-        <p>Release Date: May 22, 2021</p>
+        <p>Version: 1.2.0</p>
+        <p>Release Date: May 29, 2021</p>
         <p>Written by: Brian Moran</p>
         <p>Email: b.moniey@gmail.com</p>
         </body>
@@ -328,40 +354,38 @@ class Pylen_UI(Ui_MainWindow):
 
     def makePlot(self):
         l = np.arange(1, int(self.pl.gc.d["LAYER_COUNT"])+1, 1)
+        cv = PylenUnit.CONVERT_TO_MM[self.settings.units_index]
         fig, ax = plt.subplots()
-        ax.plot(l, self.pl.gc.edata, 'ro')
+        ax.plot(l, self.pl.gc.edata / cv, 'ro')
         plt.grid(True)
         ax.set(xlabel='Layer',
-               ylabel='Filament Length Usage[mm]',
-               title=f'file:{self.filename_gcode}')
+               ylabel=f'Filament Length Usage[{PylenUnit.SHORT_STRING[self.settings.units_index]}]',
+               title=f'file:{self.settings.report_file}')
 
         for n in l:
-            label = f'({n},{self.pl.gc.edata[n-1]:.0f})'
+            label = f'({n},{self.pl.gc.edata[n-1]/cv:{PylenUnit.FORMAT[self.settings.units_index]}})'
             plt.annotate(label,
-                         (n, self.pl.gc.edata[n-1]),
+                         (n, self.pl.gc.edata[n-1] / cv),
                          textcoords="offset points",
                          xytext=(30, -10),
                          ha='center')
 
         plt.show()
 
-    def makeCSV(self):
-        csv = [f'Start up Filament Usage[mm]:{self.pl.gc.start_eabs:.2f}']
-        csv.append('N,length[mm]')
-        for n in range(int(self.pl.gc.d["LAYER_COUNT"])):
-            csv.append(f'{n + 1},{self.pl.gc.edata[n]:.0f}')
-        return csv
-
     def makeCSVFile(self):
-        fd = open(self.filename_report,'w')
-        fd.write(f'gcode file:,{self.filename_gcode}\n')
+        fd = open(self.settings.report_file,'w')
+        fd.write(f'gcode file:,{self.settings.gcode_file}\n')
         fd.write(f'Layer Count:,{self.pl.gc.d["LAYER_COUNT"]}\n')
-        fd.write(f'Total Filament[mm]:,{float( self.pl.gc.d["Filament used"] ) * 1000.0:.1f}\n')
+        TotalFilament = PylenUnit(float( self.pl.gc.d["Filament used"] ) * 1000.0)
+        TotalFilament.setUnit(self.settings.units_index)
+        fd.write(f'Total Filament[{TotalFilament.unitStr()}]:,{TotalFilament.convert():.3f}\n')
         fd.write(f'GCode Flavor:,{self.pl.gc.d["FLAVOR"]}\n')
-        fd.write(f'Start up Filament Usage[mm],{self.pl.gc.start_eabs:.2f}\n')
-        fd.write('Layer[-],length[mm]\n')
+        StartUpFilament = PylenUnit(float( self.pl.gc.start_eabs))
+        StartUpFilament.setUnit(self.settings.units_index)
+        fd.write(f'Start up Filament Usage[{StartUpFilament.unitStr()}],{StartUpFilament.convert():.3f}\n')
+        fd.write(f'Layer[-],length[{PylenUnit.SHORT_STRING[self.settings.units_index]}]\n')
         for n in range(int(self.pl.gc.d["LAYER_COUNT"])):
-            fd.write(f'{n + 1},{self.pl.gc.edata[n]:.0f}\n')
+            fd.write(f'{n + 1},{self.pl.gc.edata[n]/PylenUnit.CONVERT_TO_MM[self.settings.units_index]:.3f}\n')
         fd.close()
 
     def update_progress(self):
@@ -373,14 +397,16 @@ class Pylen_UI(Ui_MainWindow):
 
 
     def pushButtonGenerateClicked(self):
-        if self.filename_gcode is not None and self.parse_in_progress is False:
+        if self.settings.gcode_file is not None and self.parse_in_progress is False:
             self.textBrowser_OutputWindow.setText('File Open, Starting a new session. Waiting for Generate to Start:')
-            self.textBrowser_OutputWindow.append(f'GCode File Path Set to:{self.filename_gcode}')
-            self.textBrowser_OutputWindow.append(f'GCode Report Path Set to:{self.filename_gcode}')
+            self.textBrowser_OutputWindow.setText('Refreshing units...:')
+            self.comboBoxUnits.setCurrentIndex(self.settings.units_index)
+            self.textBrowser_OutputWindow.append(f'GCode File Path Set to:{self.settings.gcode_file}')
+            self.textBrowser_OutputWindow.append(f'GCode Report Path Set to:{self.settings.report_file}')
             self.textBrowser_OutputWindow.append('Reading GCode. This may take a moment...')
             #move the parsing to a worker thread
 
-            self.pl = Pylen(self.filename_gcode)
+            self.pl = Pylen(self.settings.gcode_file)
            #self.pl.gc.parse()
             self.parse_completed = False
             self.parse_in_progress = True
@@ -401,19 +427,19 @@ class Pylen_UI(Ui_MainWindow):
                 self.textBrowser_OutputWindow.append('Stated vs Calculated filament usage: < 1mm')
             else:
                 self.textBrowser_OutputWindow.append(f'Stated vs Calculated filament usage:{delta:.1f}')
-            self.textBrowser_OutputWindow.append(f'layer report for file:{self.filename_gcode}')
+            self.textBrowser_OutputWindow.append(f'layer report for file:{self.settings.gcode_file}')
             self.textBrowser_OutputWindow.append(f'layer count:{int(self.pl.gc.d["LAYER_COUNT"])}')
             #csv = self.makeCSV()
             #for line in csv:
             #    self.textBrowser_OutputWindow.append(line)
-            self.textBrowser_OutputWindow.append(f'generating csv file:{self.filename_report}')
+            self.textBrowser_OutputWindow.append(f'generating csv file:{self.settings.report_file}')
             self.makeCSVFile()
 
             self.textBrowser_OutputWindow.append(f'generating plot')
             self.makePlot()
             self.textBrowser_OutputWindow.append(f'Done')
             self.parse_in_progress = False
-            self.clen_ui = Pylen_Clen_UI(self.pl)
+            self.clen_ui = Pylen_Clen_UI(self.pl,self.settings)
 
 
         else:
@@ -435,7 +461,7 @@ def main():
     MainWindow = QtWidgets.QMainWindow()
     with Settings() as settings:
         ui = Pylen_UI(settings)
-        ui.pylen_setupUi(MainWindow)
+        ui.setupUi(MainWindow)
         MainWindow.show()
         sys.exit(app.exec_())
 

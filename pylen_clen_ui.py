@@ -31,7 +31,7 @@ class Ui_CutLengthWorkSheet(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 557, 299))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 557, 254))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -40,6 +40,14 @@ class Ui_CutLengthWorkSheet(object):
         self.pushButton_AddSegment = QtWidgets.QPushButton(CutLengthWorkSheet)
         self.pushButton_AddSegment.setObjectName("pushButton_AddSegment")
         self.verticalLayout_2.addWidget(self.pushButton_AddSegment)
+        self.label = QtWidgets.QLabel(CutLengthWorkSheet)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.verticalLayout_2.addWidget(self.label)
+        self.comboBoxUnits = QtWidgets.QComboBox(CutLengthWorkSheet)
+        self.comboBoxUnits.setCurrentText("")
+        self.comboBoxUnits.setObjectName("comboBoxUnits")
+        self.verticalLayout_2.addWidget(self.comboBoxUnits)
 
         self.retranslateUi(CutLengthWorkSheet)
         QtCore.QMetaObject.connectSlotsByName(CutLengthWorkSheet)
@@ -48,6 +56,7 @@ class Ui_CutLengthWorkSheet(object):
         _translate = QtCore.QCoreApplication.translate
         CutLengthWorkSheet.setWindowTitle(_translate("CutLengthWorkSheet", "Filament Cut Length WorkSheet"))
         self.pushButton_AddSegment.setText(_translate("CutLengthWorkSheet", "Add Segment"))
+        self.label.setText(_translate("CutLengthWorkSheet", "Unit Selection"))
 
 
 if __name__ == "__main__":

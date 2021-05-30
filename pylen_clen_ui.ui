@@ -44,7 +44,7 @@
         <x>0</x>
         <y>0</y>
         <width>557</width>
-        <height>299</height>
+        <height>254</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -55,6 +55,23 @@
     <widget class="QPushButton" name="pushButton_AddSegment">
      <property name="text">
       <string>Add Segment</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Unit Selection</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="comboBoxUnits">
+     <property name="currentText">
+      <string/>
      </property>
     </widget>
    </item>
