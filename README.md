@@ -58,7 +58,7 @@ The layer count is reset and the length data is truncated to the new layer count
 - Tested only so far with Marlin Flavor gcode
 
 # TODO:
-- Add support for unit other than mm on graph and work sheet
+
 - Test this utility with various gcode flavors
 - Test out on some other operating systems (any volunteers)
 - Create a plugin for cura
