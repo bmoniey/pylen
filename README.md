@@ -63,6 +63,7 @@ The layer count is reset and the length data is truncated to the new layer count
 - Test out on some other operating systems (any volunteers)
 - Create a plugin for cura
 
+# Python Version: 3.8.10
 ## Running from source:
 ### Firstime install requirements
 `pip install -r requirements.txt`
